@@ -1,0 +1,29 @@
+id: spec-due-diligence
+party: Notary Office
+domain: client-due-diligence
+type: Registration+Logic+Institutional
+retention: 5 years
+access: compliance officer, BFT
+
+scope:
+  - BRP_REQUEST
+  - BRP_RESPONSE
+  - VIS_REQUEST
+  - VIS_RESPONSE
+  - WWFT_CHECK
+actions:
+  - identity_verified
+  - wwft_clearance
+facts:
+  - client_cleared
+
+schemas:
+  - base.registration
+  - ext.vis.registration
+  - base.logic
+  - base.institutional
+
+description: >-
+  Governs client due diligence: establishing the buyer's identity (BRP personal
+  data + VIS document validity) and the Wwft anti-money-laundering check (risk
+  profile and sanction screening in one event).

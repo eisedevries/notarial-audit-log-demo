@@ -1,0 +1,13 @@
+id: ext.vis.registration
+extends: base.registration
+description: VIS identity-document verification responses.
+
+required:
+  - name: vis_id
+    type: string
+  - name: result
+    type: enum(valid|blocked|lost|unknown)
+  - name: document_type
+    type: enum
+
+optional: []

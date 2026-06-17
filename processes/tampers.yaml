@@ -1,0 +1,5 @@
+# Per-scenario tamper rules. Applied to events as they enter the pipeline.
+# Happy path only for now; a single failure scenario will be added later
+# (the machinery in framework/scenario.py is kept intact for that).
+
+happy: []

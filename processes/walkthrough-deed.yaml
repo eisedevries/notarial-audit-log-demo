@@ -1,0 +1,347 @@
+# Canonical running example: the transfer of a deed of property.
+# One dossier (DOS-1842-014), single transaction. Terms per VAKJARGON.md.
+# 5 Logic actions -> 2 Institutional facts. Closes with a GDPR art. 17 redaction (L4).
+#
+# title_nl / narration_nl carry the Dutch process content for the EN/NL switcher.
+# Only natural-language content is translated; event/action/fact/spec/correlation
+# ids and the layer/gate labels (Registration, Logic, Institutional, Reg|Log Gate,
+# Log|Inst Gate, C1-C9) stay in English to match the thesis terminology.
+
+steps:
+  - id: 0
+    title: Idle - rulebook in place
+    title_nl: Inactief - regelkader gereed
+    actor: "-"
+    source: "-"
+    narration: >-
+      Before any event lands, the governance rulebook is in place: four process
+      specifications (client due diligence, deed transfer, mortgage, CDR
+      registration), the schema definitions, the log-source registry, and the
+      gate conditions C1-C9. Click NEXT to begin the transfer-of-deed example.
+    narration_nl: >-
+      Voordat er een gebeurtenis binnenkomt, ligt het governance-regelkader vast:
+      vier processpecificaties (cliëntenonderzoek, levering van de akte, hypotheek,
+      CDR-registratie), de schemadefinities, het log source registry en de
+      gate-condities C1-C9. Klik op NEXT om het voorbeeld van de levering van de
+      akte te starten.
+
+  - id: 1
+    title: Open dossier
+    title_nl: Dossier openen
+    actor: legal_assistant
+    source: nsl
+    narration: >-
+      The legal assistant opens a new dossier in the NSL for the property
+      transfer. This establishes the dossier correlation (DOS-1842-014) that
+      every downstream event inherits, and registers the two parties: buyer and
+      seller.
+    narration_nl: >-
+      De juridisch medewerker opent een nieuw dossier in de NSL voor de
+      eigendomsoverdracht. Dit legt de dossiercorrelatie (DOS-1842-014) vast die
+      elke navolgende gebeurtenis overneemt, en registreert de twee partijen:
+      koper en verkoper.
+    emit:
+      - source: nsl
+        type: DOSSIER_OPENED
+        sev: 6
+        correlation: DOS-1842-014
+        actor: legal_assistant
+        attrs: { object: DOS-1842-014, buyer: PARTY-7e2c, seller: PARTY-3a91 }
+
+  - id: 2
+    title: Verify identity
+    title_nl: Identiteit vaststellen
+    actor: legal_assistant
+    source: nsl
+    narration: >-
+      The buyer's identity is verified two ways: the BRP returns the personal
+      data on record, and the VIS confirms the passport is valid (not reported
+      lost or stolen). Four Registration events - spanning NSL, BRP and VIS -
+      combine at the Reg|Log Gate into one Logic action, identity_verified. Each external
+      response is recorded as a crosslink (L3).
+    narration_nl: >-
+      De identiteit van de koper wordt op twee manieren vastgesteld: de BRP levert
+      de geregistreerde persoonsgegevens, en de VIS bevestigt dat het paspoort
+      geldig is (niet als vermist of gestolen gemeld). Vier Registration-gebeurtenissen
+      - verspreid over NSL, BRP en VIS - worden bij de Reg|Log Gate samengevoegd tot
+      één Logic-actie, identiteit_vastgesteld. Elk extern antwoord wordt vastgelegd als
+      crosslink (L3).
+    emit:
+      - source: nsl
+        type: BRP_REQUEST
+        sev: 6
+        correlation: DOS-1842-014
+        actor: legal_assistant
+        attrs: { object: PARTY-7e2c, subject: buyer }
+      - source: brp
+        type: BRP_RESPONSE
+        sev: 6
+        correlation: DOS-1842-014
+        actor: brp
+        attrs:
+          object: PARTY-7e2c
+          name: "Jansen, M.A."
+          bsn: "•••••1234"
+          dob: "1989-03-14"
+          brp_ref: BRP-44a1
+          crosslinks: [NSL-REQ-1201]
+      - source: nsl
+        type: VIS_REQUEST
+        sev: 6
+        correlation: DOS-1842-014
+        actor: legal_assistant
+        attrs: { object: PARTY-7e2c, doc: "NL-passport" }
+      - source: vis
+        type: VIS_RESPONSE
+        sev: 6
+        correlation: DOS-1842-014
+        actor: vis
+        attrs:
+          object: PARTY-7e2c
+          result: valid
+          vis_id: VIS-7e2c
+          crosslinks: [NSL-REQ-1202]
+    gate1:
+      - action: identity_verified
+        activator: legal_assistant
+        spec: spec-due-diligence
+        members: [BRP_REQUEST, BRP_RESPONSE, VIS_REQUEST, VIS_RESPONSE]
+
+  - id: 3
+    title: Wwft check
+    title_nl: Wwft-controle
+    actor: legal_assistant
+    source: wwftrace
+    narration: >-
+      The legal assistant runs the Wwft (anti-money-laundering) check on the
+      buyer - risk assessment and sanction screening in one step. It is
+      promoted at the Reg|Log Gate to wwft_clearance. With both identity_verified and
+      wwft_clearance present, the Log|Inst Gate promotes the first Institutional fact:
+      client_cleared.
+    narration_nl: >-
+      De juridisch medewerker voert de Wwft-controle (anti-witwas) uit op de koper
+      - risicobeoordeling en sanctiescreening in één stap. Deze wordt bij de
+      Reg|Log Gate gepromoveerd tot wwft_vrijgave. Met zowel identiteit_vastgesteld als
+      wwft_vrijgave aanwezig promoveert de Log|Inst Gate het eerste Institutional
+      feit: client_vrijgegeven.
+    emit:
+      - source: wwftrace
+        type: WWFT_CHECK
+        sev: 6
+        correlation: DOS-1842-014
+        actor: legal_assistant
+        attrs: { object: PARTY-7e2c, risk: low, pep: false, sanctions: clear }
+    gate1:
+      - action: wwft_clearance
+        activator: legal_assistant
+        spec: spec-due-diligence
+        members: [WWFT_CHECK]
+    gate2:
+      - fact: client_cleared
+        spec: spec-due-diligence
+        logics: [identity_verified, wwft_clearance]
+
+  - id: 4
+    title: Mortgage instruction (ECH)
+    title_nl: Hypotheekopdracht (ECH)
+    actor: lender
+    source: ech
+    narration: >-
+      The mortgage lender sends its instruction to the notary via Stichting ECH
+      (Vestigen 5.0): the notary instruction, followed by the settlement note
+      stating the amount and date the lender will transfer. These ECH messages
+      later combine into the mortgage_settled Logic action, which marks
+      completion of the ECH message exchange - not the separate fund transfer
+      itself, which the demo does not model.
+    narration_nl: >-
+      De hypotheekverstrekker stuurt zijn opdracht naar de notaris via Stichting
+      ECH (Vestigen 5.0): de notarisopdracht, gevolgd door de sluitnota met het
+      bedrag en de datum waarop de verstrekker zal overmaken. Deze ECH-berichten
+      worden later samengevoegd tot de Logic-actie hypotheek_afgewikkeld, die de
+      voltooiing van de ECH-berichtenuitwisseling markeert - niet de afzonderlijke
+      geldoverdracht zelf, die de demo niet modelleert.
+    emit:
+      - source: ech
+        type: ECH_NOTARY_INSTRUCTION
+        sev: 6
+        correlation: DOS-1842-014
+        actor: lender
+        attrs: { object: MORT-1842-014, ech_id: ECH-9920, crosslinks: [NSL-REQ-1205] }
+      - source: ech
+        type: ECH_SETTLEMENT_NOTE
+        sev: 6
+        correlation: DOS-1842-014
+        actor: lender
+        attrs: { object: MORT-1842-014, amount: "€ 312.000", ech_id: ECH-9920, crosslinks: [NSL-REQ-1206] }
+
+  - id: 5
+    title: Pre-registration title search
+    title_nl: Pre-recherche
+    actor: legal_assistant
+    source: nsl
+    narration: >-
+      Before signing, a pre-registration title search (pre-recherche) is run
+      against the Kadaster to confirm there are no unexpected encumbrances on
+      the property. The Kadaster responds clean.
+    narration_nl: >-
+      Vóór het passeren wordt een pre-recherche uitgevoerd bij het Kadaster om te
+      bevestigen dat er geen onverwachte bezwaringen op het object rusten. Het
+      Kadaster antwoordt schoon.
+    emit:
+      - source: nsl
+        type: PRE_TITLE_SEARCH_REQ
+        sev: 6
+        correlation: DOS-1842-014
+        actor: legal_assistant
+        attrs: { object: DEED-1842-014 }
+      - source: kadaster
+        type: PRE_TITLE_SEARCH_OK
+        sev: 6
+        correlation: DOS-1842-014
+        actor: kadaster
+        attrs: { object: DEED-1842-014, encumbrances: none, kad_ref: KAD-1842-7741, crosslinks: [NSL-REQ-1203] }
+
+  - id: 6
+    title: Transfer the deed (PKIOverheid)
+    title_nl: De akte passeren (PKIOverheid)
+    actor: notary
+    source: nsl
+    narration: >-
+      The notary transfers the deed before the parties, signing with the
+      PKIOverheid professional certificate. The event carries the certificate
+      metadata and references both the transfer deed and the mortgage deed.
+      This is the legally anchoring act.
+    narration_nl: >-
+      De notaris passeert de akte ten overstaan van de partijen en ondertekent met
+      het PKIOverheid-beroepscertificaat. De gebeurtenis bevat de
+      certificaatmetadata en verwijst naar zowel de leveringsakte als de
+      hypotheekakte. Dit is de juridisch verankerende handeling.
+    emit:
+      - source: nsl
+        type: DEED_TRANSFERRED
+        sev: 5
+        correlation: DOS-1842-014
+        actor: notary
+        attrs:
+          object: DEED-1842-014
+          mortgage: MORT-1842-014
+          cert_id: PKI-NL-NOT-4421
+          issuer: QuoVadis-CA
+          valid_to: "2027-11-04"
+
+  - id: 7
+    title: Register with Kadaster + narecherche
+    title_nl: Inschrijven bij Kadaster + narecherche
+    actor: notary
+    source: nsl
+    narration: >-
+      The deed is submitted to the Kadaster via SYVAS before the 15:00
+      inscription deadline and acknowledged. The next-day post-registration
+      title search (narecherche) confirms a clean inscription. Pre-recherche,
+      the deed transfer, the SYVAS submission and acknowledgement, and the
+      narecherche combine at the Reg|Log Gate into deed_registered.
+    narration_nl: >-
+      De akte wordt vóór de inschrijvingsdeadline van 15:00 via SYVAS bij het
+      Kadaster ingediend en bevestigd. De narecherche van de volgende dag
+      bevestigt een schone inschrijving. De pre-recherche, het passeren van de
+      akte, de SYVAS-indiening en -bevestiging, en de narecherche worden bij de
+      Reg|Log Gate samengevoegd tot akte_ingeschreven.
+    emit:
+      - source: nsl
+        type: SYVAS_SUBMITTED
+        sev: 6
+        correlation: DOS-1842-014
+        actor: notary
+        attrs: { object: DEED-1842-014, submitted_at: "14:58" }
+      - source: kadaster
+        type: SYVAS_ACK
+        sev: 6
+        correlation: DOS-1842-014
+        actor: kadaster
+        attrs: { object: DEED-1842-014, code: ack, kad_ref: KAD-1842-7742, crosslinks: [NSL-REQ-1204] }
+      - source: kadaster
+        type: POST_TITLE_SEARCH_OK
+        sev: 6
+        correlation: DOS-1842-014
+        actor: kadaster
+        attrs: { object: DEED-1842-014, result: clean }
+    gate1:
+      - action: deed_registered
+        activator: notary
+        spec: spec-deed-transfer
+        members: [PRE_TITLE_SEARCH_REQ, PRE_TITLE_SEARCH_OK, DEED_TRANSFERRED, SYVAS_SUBMITTED, SYVAS_ACK, POST_TITLE_SEARCH_OK]
+
+  - id: 8
+    title: Deed transfer confirmation + CDR registration
+    title_nl: Passeer bevestiging + CDR-registratie
+    actor: notary
+    source: cdr
+    narration: >-
+      The notary returns the deed transfer confirmation to the lender via ECH. The repository entry and a certified copy are then sent to the CDR for registration in the Centraal Digitaal Repertorium - which must happen within 48 hours of passing. The CDR records it and returns a registration number (cdr_nummer), completing cdr_registration. The Log|Inst Gate then combines deed_registered, mortgage_settled, and cdr_registration into the Institutional fact property_transferred.
+    narration_nl: >-
+      De notaris stuurt de passeer bevestiging terug naar de verstrekker via ECH. De repertoriumregel en een akteafschrift worden vervolgens naar het CDR gestuurd voor registratie in het Centraal Digitaal Repertorium - wat binnen 48 uur na het passeren moet gebeuren. Het CDR legt dit vast en retourneert een registratienummer (cdr_nummer), waarmee cdr_registratie wordt voltooid. De Log|Inst Gate voegt vervolgens akte_ingeschreven, hypotheek_afgewikkeld en cdr_registratie samen tot het Institutional feit eigendom_overgedragen.
+    emit:
+      - source: ech
+        type: ECH_TRANSFER_CONFIRMATION
+        sev: 6
+        correlation: DOS-1842-014
+        actor: notary
+        attrs: { object: MORT-1842-014, ech_id: ECH-9920, crosslinks: [NSL-REQ-1207] }
+      - source: nsl
+        type: CDR_REGISTER_REQ
+        sev: 6
+        correlation: DOS-1842-014
+        actor: notary
+        attrs: { object: DEED-1842-014, sends: "repository entry + certified copy of the deed" }
+      - source: cdr
+        type: CDR_RESPONSE
+        sev: 6
+        correlation: DOS-1842-014
+        actor: cdr
+        attrs:
+          object: DEED-1842-014
+          code: 1
+          cdr_nummer: "1842/0114/004421"
+          cdr_log_uuid: cdr-7e22-91ab
+          crosslinks: [NSL-REQ-1311]
+    gate1:
+      - action: mortgage_settled
+        activator: notary
+        spec: spec-mortgage
+        members: [ECH_NOTARY_INSTRUCTION, ECH_SETTLEMENT_NOTE, ECH_TRANSFER_CONFIRMATION]
+      - action: cdr_registration
+        activator: notary
+        spec: spec-cdr
+        members: [CDR_REGISTER_REQ, CDR_RESPONSE]
+    gate2:
+      - fact: property_transferred
+        spec: spec-deed-transfer
+        logics: [deed_registered, mortgage_settled, cdr_registration]
+
+  - id: 9
+    title: Erasure request - redact personal data (GDPR art. 17)
+    title_nl: Verzoek tot wissing - persoonsgegevens anonimiseren (AVG art. 17)
+    actor: notary
+    source: nsl
+    narration: >-
+      Months after completion, the seller exercises their right to erasure for the
+      personal data captured during due diligence. The office cannot delete it
+      silently: it performs a governed redaction. The client_cleared audit-log core
+      entry is versioned v1 to v2, and an immutable change-log entry is appended
+      recording who, when, why, and the old-to-new content hash. The original is
+      never mutated in place - the change is itself permanently logged (principle L4).
+    narration_nl: >-
+      Maanden na voltooiing oefent de verkoper zijn recht op wissing uit voor de
+      persoonsgegevens die tijdens het cliëntenonderzoek zijn vastgelegd. Het
+      kantoor kan deze niet stilzwijgend verwijderen: het voert een gecontroleerde
+      anonimisering uit. De audit log core-entry client_vrijgegeven wordt geversioneerd
+      van v1 naar v2, en aan het immutable change log wordt een entry toegevoegd die
+      vastlegt wie, wanneer, waarom, en de oude-naar-nieuwe contenthash. Het
+      origineel wordt nooit ter plekke gemuteerd - de wijziging wordt zelf permanent
+      gelogd (principe L4).
+    redaction:
+      target: client_cleared
+      reason: "GDPR art. 17 erasure - buyer personal data redacted"
+      by: notary
+      old_hash: "sha256:9f2a…b71c"
+      new_hash: "sha256:4c8e…02da"

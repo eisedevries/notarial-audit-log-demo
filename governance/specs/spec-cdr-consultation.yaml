@@ -1,0 +1,31 @@
+id: spec-cdr-consultation
+party: KNB
+domain: cdr-consultation
+type: Registration+Logic
+retention: 7y
+access: KNB registrar, notary, data subject on request
+
+scope:
+  - CERT_PRESENTED
+  - DEED_INDEX_OPENED
+  - DEED_PDF_RETRIEVED
+actions:
+  - deed_consultation
+facts:
+  - deed_consultation_recorded
+
+schemas:
+  - base.registration
+  - base.logic
+
+description: >-
+  Governs content-blind consultation of a deed in the Centraal Digitaal
+  Repertorium. Today only certificate entry is monitored; this specification
+  extends logging to the deed level so that who viewed which deed, and when, is
+  provable. Each consultation is an independent process instance with its own
+  correlation root, so repeated consultations of deeds each produce their own
+  audit log. The content-blind requirement is encoded here, not in the gates:
+  the log records the deed identifier and a content hash (proving which document
+  was opened and that it was unaltered) but never the contents - pseudonimisering
+  as a security measure, preserving the notarial confidentiality of the deed
+  while still delivering accountability for the consultation.

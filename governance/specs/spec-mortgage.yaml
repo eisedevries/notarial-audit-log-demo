@@ -1,0 +1,32 @@
+id: spec-mortgage
+party: Stichting ECH
+domain: mortgage
+type: Registration+Logic
+retention: 10 years
+access: lender, notary
+
+scope:
+  - ECH_NOTARY_INSTRUCTION
+  - ECH_SETTLEMENT_NOTE
+  - ECH_TRANSFER_CONFIRMATION
+actions:
+  - mortgage_settled
+facts: []
+
+schemas:
+  - base.registration
+  - base.logic
+
+description: >-
+  Governs the mortgage message flow between the lender and the notary over
+  Stichting ECH (Vestigen 5.0): the notary instruction, the settlement note,
+  and the deed transfer confirmation. Stichting ECH is an independent (external)
+  foundation operating the bank-to-notary mortgage messaging, not part of the
+  KNB platform - so this leg is a genuine cross-organisational exchange, and the
+  foreign ech_id is recorded once as a crosslink alongside the dossier id
+  (principle L3 / condition C5). The action mortgage_settled marks completion of
+  this ECH message exchange - the settlement note carries the amount and transfer
+  date, the transfer confirmation closes it. The separate payout request
+  (opvragen uitbetaling) and the actual fund transfer are not modelled, a
+  deliberate demo simplification: the demo logs the message-level trace, not the
+  cash movement.

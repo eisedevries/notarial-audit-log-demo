@@ -1,0 +1,31 @@
+id: spec-deed-transfer
+party: Notary Office
+domain: deed-transfer
+type: Registration+Logic+Institutional
+retention: 10 years
+access: notary, BFT auditor
+
+scope:
+  - DOSSIER_OPENED
+  - PRE_TITLE_SEARCH_REQ
+  - PRE_TITLE_SEARCH_OK
+  - DEED_TRANSFERRED
+  - SYVAS_SUBMITTED
+  - SYVAS_ACK
+  - POST_TITLE_SEARCH_OK
+actions:
+  - deed_registered
+facts:
+  - property_transferred
+
+schemas:
+  - base.registration
+  - ext.nsl.registration
+  - base.logic
+  - base.institutional
+
+description: >-
+  Governs the transfer of a deed of property: opening the dossier, the
+  pre-registration title search, the transfer of the deed before the notary
+  (PKIOverheid), submission to the Kadaster via SYVAS and its acknowledgement,
+  and the post-registration title search.

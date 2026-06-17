@@ -1,0 +1,15 @@
+id: ext.cdr.registration
+extends: base.registration
+description: CDR response codes (1..281) with severity mapping.
+
+required:
+  - name: code
+    type: int(1..281)
+  - name: cdr_log_uuid
+    type: UUID
+  - name: cdr_nummer
+    type: string
+
+optional:
+  - name: severity_derived
+    type: from(code)

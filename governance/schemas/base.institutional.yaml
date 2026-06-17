@@ -1,0 +1,17 @@
+id: base.institutional
+layer: institutional
+description: Base schema for Layer 3.
+
+required:
+  - name: fact_id
+    type: UUID
+  - name: fact_type
+    type: string
+  - name: represents
+    type: ref(Logic)[]
+  - name: spec_ref
+    type: ref(Specification)
+  - name: retention_class
+    type: enum
+
+optional: []

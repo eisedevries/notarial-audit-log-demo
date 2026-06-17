@@ -1,0 +1,27 @@
+id: spec-cdr
+party: KNB
+domain: deed-registration
+type: Registration+Logic
+retention: permanent
+access: KNB registrar, notary
+
+scope:
+  - CDR_REGISTER_REQ
+  - CDR_RESPONSE
+actions:
+  - cdr_registration
+facts: []
+
+schemas:
+  - base.registration
+  - ext.cdr.registration
+  - base.logic
+
+description: >-
+  Governs registration in the Centraal Digitaal Repertorium (Central Digital
+  Repository): every passed deed must be registered within 48 hours. The notary
+  submits the repository entry (index: type, protocol, date) and a certified
+  copy of the deed; the CDR records it and returns a registration number
+  (cdr_nummer). The KNB runs the CDR for the Belastingdienst and is
+  content-blind - it stores the PDF copy but does not read or validate the
+  deed contents.

@@ -1,0 +1,80 @@
+# Log source registry. Every emitter must appear here for the Log|Inst Gate (C8 / L7) to pass.
+
+- id: nsl
+  party: Notary Office
+  domain: deed-transfer
+  type: Registration
+  retention: 7y
+  access: notary, BFT
+
+- id: wwftrace
+  party: Notary Office
+  domain: client-due-diligence
+  type: Registration
+  retention: 5y
+  access: compliance officer
+
+- id: brp
+  party: External
+  domain: identity-verification
+  type: Registration
+  retention: 1y
+  access: notary
+
+- id: vis
+  party: KNB
+  domain: identity-verification
+  type: Registration
+  retention: 1y
+  access: KNB, notary
+
+- id: kadaster
+  party: External
+  domain: deed-registration
+  type: Registration
+  retention: perm.
+  access: Kadaster, notary
+
+- id: cdr
+  party: KNB
+  domain: deed-registration
+  type: Registration
+  retention: perm.
+  access: KNB, notary
+
+- id: ech
+  party: External
+  domain: mortgage
+  type: Registration
+  retention: 10y
+  access: lender, notary
+
+# --- register-consultation example (B1) ---
+- id: registernotariaat
+  party: KNB
+  domain: register-consultation
+  type: Registration
+  retention: 1y
+  access: public, KNB
+
+- id: brn
+  party: KNB
+  domain: register-consultation
+  type: Registration
+  retention: perm.
+  access: public (lawful set), KNB
+
+- id: ogn
+  party: KNB
+  domain: register-consultation
+  type: Registration
+  retention: 1y
+  access: chain partners, KNB
+
+# --- CDR content-blind consultation example (B2) ---
+- id: pec
+  party: KNB
+  domain: cdr-consultation
+  type: Registration
+  retention: 1y
+  access: notary, KNB

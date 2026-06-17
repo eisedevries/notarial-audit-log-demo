@@ -1,0 +1,38 @@
+# Framework principles L1–L9.
+# Kept compact: code, name, statement. The full conceptual ground lives in the thesis.
+
+- code: L1
+  name: Activator attribution
+  text: Every recorded action is attributable to an identifiable activator (human or system).
+
+- code: L2
+  name: Temporal anchoring
+  text: Every entry is bound to a synchronised, verifiable time reference.
+
+- code: L3
+  name: Cross-system linkability
+  text: Entries spanning systems must carry mutually-resolvable identifiers.
+
+- code: L4
+  name: Demonstrable integrity
+  text: Audit entries are append-only; alterations must themselves be recorded immutably.
+
+- code: L5
+  name: Faithful recording over rejection
+  text: The framework records problems rather than rejecting events.
+
+- code: L6
+  name: Minimal sufficient detail
+  text: Capture what governance requires; no more, no less.
+
+- code: L7
+  name: Source registration
+  text: Only events from registered, governed sources contribute to institutional facts.
+
+- code: L8
+  name: Retention and lifecycle
+  text: Each layer carries its own retention; destruction must itself be logged.
+
+- code: L9
+  name: Schema definition
+  text: Entry shape is governed by registered base + extension schemas.

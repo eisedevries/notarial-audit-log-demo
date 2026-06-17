@@ -1,0 +1,203 @@
+# Access-logging example: content-blind consultation of a deed in the CDR.
+# The notary consults deeds in the CDR; the KNB logs WHICH deed was viewed, by
+# WHOM and WHEN - via an identifier and a content hash, never the contents.
+# TWO consultations run as two independent process instances (two correlation
+# roots / trace ids), each producing its own content-blind audit log. The two
+# passes deliberately reuse the same event/action/fact names; the gates are
+# scoped per correlation root so the instances stay separate. Terms per VAKJARGON.md.
+# 2 Logic actions -> 2 Institutional facts. No redaction step.
+#
+# title_nl / narration_nl carry the Dutch process content for the EN/NL switcher
+# (content only; layer/gate labels and ids stay English to match the thesis).
+
+steps:
+  - id: 0
+    title: Idle - rulebook in place
+    title_nl: Inactief - regelkader gereed
+    actor: "-"
+    source: "-"
+    narration: >-
+      Before any access lands, the governance rulebook is in place: the
+      CDR-consultation specification, the log-source registry, and the gate
+      conditions C1-C9. The CDR holds every passed deed (index + a PDF copy);
+      the KNB knows the type but cannot read the contents. The goal here is
+      content-blind auditing: prove who viewed which deed without exposing the
+      contents. Two consultations run as two separate process instances. Click NEXT.
+    narration_nl: >-
+      Voordat er een toegang binnenkomt, ligt het governance-regelkader vast: de
+      specificatie voor CDR-raadpleging, het log source registry en de
+      gate-condities C1-C9. Het CDR bevat elke gepasseerde akte (index + een
+      pdf-kopie); de KNB kent het type maar kan de inhoud niet lezen. Het doel hier
+      is inhoudsonafhankelijke auditing: aantonen wie welke akte heeft ingezien
+      zonder de inhoud bloot te leggen. Twee raadplegingen lopen als twee
+      afzonderlijke procesinstanties. Klik op NEXT.
+
+  - id: 1
+    title: Certificate presented (PEC)
+    title_nl: Certificaat aangeboden (PEC)
+    actor: notary
+    source: pec
+    narration: >-
+      First consultation. The notary enters the Platform Elektronische
+      Communicatie with a PKIoverheid professional certificate. This is the only
+      thing logged in the current situation - that someone arrived with a valid
+      certificate, with no record of what is done afterwards at deed level. This
+      process instance has its own correlation root (CON-CDR-2026-0231).
+    narration_nl: >-
+      Eerste raadpleging. De notaris betreedt het Platform Elektronische
+      Communicatie met een PKIOverheid-beroepscertificaat. Dit is het enige dat in
+      de huidige situatie wordt gelogd - dat iemand met een geldig certificaat is
+      binnengekomen, zonder vastlegging van wat er daarna op akteniveau gebeurt.
+      Deze procesinstantie heeft een eigen correlatie-ID (CON-CDR-2026-0231).
+    emit:
+      - source: pec
+        type: CERT_PRESENTED
+        sev: 6
+        correlation: CON-CDR-2026-0231
+        actor: notary
+        attrs: { object: DEED-2026-0231, cert_id: PKI-NL-NOT-4421, issuer: QuoVadis-CA, valid_to: "2027-11-04" }
+
+  - id: 2
+    title: Deed index opened (CDR)
+    title_nl: Akte-index geopend (CDR)
+    actor: notary
+    source: cdr
+    narration: >-
+      The notary opens the index entry of the first deed in the CDR. The log
+      captures the deed identifier, its type and protocol number, and that the
+      viewer is the owning notary - the metadata needed for accountability, none
+      of the deed contents. (Whether CDR access is technically restricted to a
+      notary's own protocol is an open question in the fieldwork; detail-level
+      logging like this is precisely what would make such access auditable.)
+    narration_nl: >-
+      De notaris opent de indexregel van de eerste akte in het CDR. Het log legt de
+      akte-identifier, het type en protocolnummer vast, en dat de inziener de
+      eigenaar-notaris is - de metadata die nodig is voor verantwoording, niets van
+      de akte-inhoud. (Of CDR-toegang technisch beperkt is tot het eigen protocol
+      van een notaris is een open vraag in het veldwerk; juist gedetailleerde
+      logging als deze zou dergelijke toegang controleerbaar maken.)
+    emit:
+      - source: cdr
+        type: DEED_INDEX_OPENED
+        sev: 6
+        correlation: CON-CDR-2026-0231
+        actor: notary
+        attrs: { object: DEED-2026-0231, type: "levering onroerend goed", protocol: "1842/0114/004421", owner: self }
+
+  - id: 3
+    title: Deed retrieved - content-blind
+    title_nl: Akte opgehaald - inhoudsonafhankelijk
+    actor: notary
+    source: cdr
+    narration: >-
+      The notary retrieves the deed PDF. The log records a content hash that
+      proves which document was opened and that it was unaltered, but the
+      contents themselves are never written to the log (content_logged is false)
+      - pseudonimisering as a security measure. The Reg|Log Gate combines the three events
+      of this instance into deed_consultation; the Log|Inst Gate records the Institutional
+      fact deed_consultation_recorded (the first audit log, i-1).
+    narration_nl: >-
+      De notaris haalt de akte-pdf op. Het log legt een contenthash vast die
+      bewijst welk document is geopend en dat het ongewijzigd was, maar de inhoud
+      zelf wordt nooit naar het log geschreven (content_logged is false) -
+      pseudonimisering als beveiligingsmaatregel. De Reg|Log Gate voegt de drie
+      gebeurtenissen van deze instantie samen tot akte_raadpleging; de Log|Inst
+      Gate legt het Institutional feit akte_raadpleging_vastgelegd vast (het eerste
+      audit log, i-1).
+    emit:
+      - source: cdr
+        type: DEED_PDF_RETRIEVED
+        sev: 6
+        correlation: CON-CDR-2026-0231
+        actor: notary
+        attrs:
+          object: DEED-2026-0231
+          content_hash: "sha256:9f2c…a1b7"
+          content_logged: false
+          disclosure_basis: "eigen protocol (Wna)"
+          logging_basis: "gerechtvaardigd belang (informatiebeveiliging)"
+    gate1:
+      - action: deed_consultation
+        activator: notary
+        spec: spec-cdr-consultation
+        members: [CERT_PRESENTED, DEED_INDEX_OPENED, DEED_PDF_RETRIEVED]
+        correlation: CON-CDR-2026-0231
+    gate2:
+      - fact: deed_consultation_recorded
+        spec: spec-cdr-consultation
+        logics: [deed_consultation]
+        correlation: CON-CDR-2026-0231
+
+  - id: 4
+    title: Second consultation - deed index opened
+    title_nl: Tweede raadpleging - akte-index geopend
+    actor: notary
+    source: cdr
+    narration: >-
+      A second, independent consultation. The notary opens a different deed in
+      the CDR, in a new session with its own correlation root
+      (CON-CDR-2026-0232). The certificate is presented again and the deed index
+      is opened. Same kind of events as the first consultation - the gates are
+      scoped per correlation root, so this stays a separate process instance.
+    narration_nl: >-
+      Een tweede, onafhankelijke raadpleging. De notaris opent een andere akte in
+      het CDR, in een nieuwe sessie met een eigen correlatie-ID (CON-CDR-2026-0232).
+      Het certificaat wordt opnieuw aangeboden en de akte-index wordt geopend.
+      Dezelfde soort gebeurtenissen als bij de eerste raadpleging - de gates zijn
+      per correlatie-ID afgebakend, zodat dit een afzonderlijke procesinstantie
+      blijft.
+    emit:
+      - source: pec
+        type: CERT_PRESENTED
+        sev: 6
+        correlation: CON-CDR-2026-0232
+        actor: notary
+        attrs: { object: DEED-2026-0232, cert_id: PKI-NL-NOT-4421, issuer: QuoVadis-CA, valid_to: "2027-11-04" }
+      - source: cdr
+        type: DEED_INDEX_OPENED
+        sev: 6
+        correlation: CON-CDR-2026-0232
+        actor: notary
+        attrs: { object: DEED-2026-0232, type: "hypotheek", protocol: "1842/0114/004422", owner: self }
+
+  - id: 5
+    title: Second consultation - deed retrieved
+    title_nl: Tweede raadpleging - akte opgehaald
+    actor: notary
+    source: cdr
+    narration: >-
+      The notary retrieves the second deed PDF - again content-blind, hash only.
+      The Reg|Log Gate combines this instance's three events into deed_consultation; the Log|Inst Gate
+      records a second Institutional fact, deed_consultation_recorded (the second
+      audit log, i-2). Two consultations, two trace ids, two audit logs - same
+      names, kept apart by their correlation root.
+    narration_nl: >-
+      De notaris haalt de tweede akte-pdf op - opnieuw inhoudsonafhankelijk, alleen
+      een hash. De Reg|Log Gate voegt de drie gebeurtenissen van deze instantie
+      samen tot akte_raadpleging; de Log|Inst Gate legt een tweede Institutional
+      feit vast, akte_raadpleging_vastgelegd (het tweede audit log, i-2). Twee
+      raadplegingen, twee trace-id's, twee audit logs - dezelfde namen, gescheiden
+      gehouden door hun correlatie-ID.
+    emit:
+      - source: cdr
+        type: DEED_PDF_RETRIEVED
+        sev: 6
+        correlation: CON-CDR-2026-0232
+        actor: notary
+        attrs:
+          object: DEED-2026-0232
+          content_hash: "sha256:4b81…c33d"
+          content_logged: false
+          disclosure_basis: "eigen protocol (Wna)"
+          logging_basis: "gerechtvaardigd belang (informatiebeveiliging)"
+    gate1:
+      - action: deed_consultation
+        activator: notary
+        spec: spec-cdr-consultation
+        members: [CERT_PRESENTED, DEED_INDEX_OPENED, DEED_PDF_RETRIEVED]
+        correlation: CON-CDR-2026-0232
+    gate2:
+      - fact: deed_consultation_recorded
+        spec: spec-cdr-consultation
+        logics: [deed_consultation]
+        correlation: CON-CDR-2026-0232

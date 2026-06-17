@@ -1,0 +1,23 @@
+id: base.registration
+layer: registration
+description: Base schema for Layer 1. KNB-set; every Registration entry conforms.
+
+required:
+  - name: event_id
+    type: UUID
+  - name: event_type
+    type: string
+  - name: source_id
+    type: ref(LogSource)
+  - name: timestamp
+    type: datetime (sync ref)
+  - name: activator
+    type: ref(Actor)
+  - name: correlation_ref
+    type: string
+  - name: severity
+    type: enum(2..6 · RFC 5424)
+
+optional:
+  - name: payload
+    type: object

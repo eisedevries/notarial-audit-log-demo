@@ -1,0 +1,15 @@
+id: ext.nsl.registration
+extends: base.registration
+description: NSL dossier-system fields. Carries PKIOverheid certificate metadata on signing events.
+
+required:
+  - name: dossier_id
+    type: string
+
+optional:
+  - name: zaak_id
+    type: string
+  - name: cert_id
+    type: string (PKIOverheid)
+  - name: cert_issuer
+    type: string

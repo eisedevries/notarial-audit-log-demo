@@ -1,0 +1,17 @@
+id: base.logic
+layer: logic
+description: Base schema for Layer 2.
+
+required:
+  - name: action_id
+    type: UUID
+  - name: action_type
+    type: string
+  - name: constitutes
+    type: ref(Registration)[]
+  - name: activator
+    type: ref(Actor)
+  - name: spec_ref
+    type: ref(Specification)
+
+optional: []

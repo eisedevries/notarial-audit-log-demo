@@ -1,0 +1,163 @@
+# Access-logging example: consultation of the Register Notariaat (the BRN).
+# ONE exemplary process, TWO independent process instances (two correlation roots / trace ids):
+#   Path A - public consultation via registernotariaat.nl
+#   Path B - chain-partner consultation via OGN
+# Both read from the BRN (the register application); only the lawful public field
+# set under WNA art. 5 is disclosed, never the internal lidnummer. The data
+# subject is a notary in the register (NOTARY-REG-3391). Terms per VAKJARGON.md.
+# 2 Logic actions -> 2 Institutional facts. No redaction step.
+#
+# title_nl / narration_nl carry the Dutch process content for the EN/NL switcher
+# (content only; layer/gate labels and ids stay English to match the thesis).
+
+steps:
+  - id: 0
+    title: Idle - rulebook in place
+    title_nl: Inactief - regelkader gereed
+    actor: "-"
+    source: "-"
+    narration: >-
+      Before any consultation lands, the governance rulebook is in place: the
+      register-consultation specification, the log-source registry, and the gate
+      conditions C1-C9. This example logs who consulted the public Register
+      Notariaat (the lawful public fields of the BRN under WNA art. 5) - so the
+      data subject, a notary in the register, can later see who looked at their
+      record. Two lawful access paths run as two separate process instances. Click NEXT.
+    narration_nl: >-
+      Voordat er een raadpleging binnenkomt, ligt het governance-regelkader vast:
+      de specificatie voor registerraadpleging, het log source registry en de
+      gate-condities C1-C9. Dit voorbeeld logt wie het openbare Register Notariaat
+      heeft geraadpleegd (de rechtmatige openbare velden van de BRN op grond van
+      art. 5 Wna) - zodat de betrokkene, een notaris in het register, later kan
+      zien wie zijn gegevens heeft ingezien. Twee rechtmatige toegangspaden lopen
+      als twee afzonderlijke procesinstanties. Klik op NEXT.
+
+  - id: 1
+    title: Public search (registernotariaat.nl)
+    title_nl: Openbaar zoeken (registernotariaat.nl)
+    actor: web_visitor
+    source: registernotariaat
+    narration: >-
+      A member of the public searches the register on registernotariaat.nl.
+      Following the Autoriteit Persoonsgegevens ruling on the search function,
+      the query must be doelmatig: no results are shown until enough of the name
+      is entered, and only relevant matches are returned. This is the first
+      process instance, with its own correlation root (CON-WEB-1842-0098).
+    narration_nl: >-
+      Een lid van het publiek zoekt in het register op registernotariaat.nl. Naar
+      aanleiding van de uitspraak van de Autoriteit Persoonsgegevens over de
+      zoekfunctie moet de zoekopdracht doelmatig zijn: er worden geen resultaten
+      getoond totdat een voldoende deel van de naam is ingevoerd, en alleen
+      relevante treffers worden geretourneerd. Dit is de eerste procesinstantie,
+      met een eigen correlatie-ID (CON-WEB-1842-0098).
+    emit:
+      - source: registernotariaat
+        type: SEARCH_SUBMITTED
+        sev: 6
+        correlation: CON-WEB-1842-0098
+        actor: web_visitor
+        attrs: { object: NOTARY-REG-3391, query: "Jansen, Amsterdam", query_chars: 14, doelmatig: true }
+      - source: registernotariaat
+        type: SUGGESTIONS_RENDERED
+        sev: 6
+        correlation: CON-WEB-1842-0098
+        actor: registernotariaat
+        attrs: { object: NOTARY-REG-3391, results: 1, before_query: false }
+
+  - id: 2
+    title: Public record viewed
+    title_nl: Openbaar record ingezien
+    actor: web_visitor
+    source: brn
+    narration: >-
+      The visitor opens the matching record. The BRN returns only the lawful
+      public field set under WNA art. 5 (name, office, appointment, competence) -
+      the internal lidnummer is never disclosed. The search, the rendered
+      suggestions, and the record view combine at the Reg|Log Gate into the Logic action
+      web_consultation; the Log|Inst Gate then records the Institutional fact
+      web_consultation_recorded.
+    narration_nl: >-
+      De bezoeker opent het overeenkomende record. De BRN retourneert alleen de
+      rechtmatige openbare velden op grond van art. 5 Wna (naam, kantoor,
+      benoeming, bevoegdheid) - het interne lidnummer wordt nooit verstrekt. De
+      zoekopdracht, de getoonde suggesties en de recordweergave worden bij de
+      Reg|Log Gate samengevoegd tot de Logic-actie web_raadpleging; de Log|Inst
+      Gate legt vervolgens het Institutional feit web_raadpleging_vastgelegd vast.
+    emit:
+      - source: brn
+        type: BRN_RECORD_VIEWED
+        sev: 6
+        correlation: CON-WEB-1842-0098
+        actor: web_visitor
+        attrs: { object: NOTARY-REG-3391, fields: "public set (WNA art. 5)", lidnummer: excluded, disclosure_basis: "openbaarheid (WNA art. 5)", logging_basis: "gerechtvaardigd belang (zorgplicht / inzagerecht)" }
+    gate1:
+      - action: web_consultation
+        activator: web_visitor
+        spec: spec-register-consultation
+        members: [SEARCH_SUBMITTED, SUGGESTIONS_RENDERED, BRN_RECORD_VIEWED]
+    gate2:
+      - fact: web_consultation_recorded
+        spec: spec-register-consultation
+        logics: [web_consultation]
+
+  - id: 3
+    title: Chain-partner query (OGN)
+    title_nl: Ketenpartner-bevraging (OGN)
+    actor: kvk
+    source: ogn
+    narration: >-
+      Separately, the Kamer van Koophandel queries the register through OGN
+      (Ontsluiting Gegevens Notariaat). This is a second, independent process
+      instance with its own correlation root (CON-OGN-1842-0457). It requests the
+      same notary's record - again only the lawful public field set, not the
+      lidnummer (a persoonsgegeven the KvK may not receive).
+    narration_nl: >-
+      Afzonderlijk bevraagt de Kamer van Koophandel het register via OGN
+      (Ontsluiting Gegevens Notariaat). Dit is een tweede, onafhankelijke
+      procesinstantie met een eigen correlatie-ID (CON-OGN-1842-0457). Zij vraagt
+      het record van dezelfde notaris op - opnieuw alleen de rechtmatige openbare
+      velden, niet het lidnummer (een persoonsgegeven dat de KvK niet mag
+      ontvangen).
+    emit:
+      - source: ogn
+        type: OGN_QUERY
+        sev: 6
+        correlation: CON-OGN-1842-0457
+        actor: kvk
+        attrs: { object: NOTARY-REG-3391, requester: "Kamer van Koophandel", fields: "public set (WNA art. 5)", lidnummer: excluded }
+
+  - id: 4
+    title: Chain-partner record returned
+    title_nl: Ketenpartner-record geretourneerd
+    actor: brn
+    source: brn
+    narration: >-
+      The BRN returns the lawful public field set to the chain partner. The query
+      (via OGN) and the returned record (from the BRN) span two systems, which
+      exercises cross-system linkability (C5). Both events combine at the Reg|Log Gate into
+      ogn_consultation; the Log|Inst Gate records the second Institutional fact,
+      ogn_consultation_recorded. Two consultations, two trace ids, both accountable.
+    narration_nl: >-
+      De BRN retourneert de rechtmatige openbare velden aan de ketenpartner. De
+      bevraging (via OGN) en het geretourneerde record (uit de BRN) beslaan twee
+      systemen, wat de koppelbaarheid tussen systemen (C5) beproeft. Beide
+      gebeurtenissen worden bij de Reg|Log Gate samengevoegd tot ogn_raadpleging;
+      de Log|Inst Gate legt het tweede Institutional feit vast,
+      ogn_raadpleging_vastgelegd. Twee raadplegingen, twee trace-id's, beide
+      verantwoordbaar.
+    emit:
+      - source: brn
+        type: BRN_RECORD_RETURNED
+        sev: 6
+        correlation: CON-OGN-1842-0457
+        actor: brn
+        attrs: { object: NOTARY-REG-3391, fields: "public set (WNA art. 5)", lidnummer: excluded, disclosure_basis: "uitvoering overeenkomst (OGN ketenpartner)", logging_basis: "gerechtvaardigd belang (zorgplicht / inzagerecht)" }
+    gate1:
+      - action: ogn_consultation
+        activator: kvk
+        spec: spec-register-consultation
+        members: [OGN_QUERY, BRN_RECORD_RETURNED]
+    gate2:
+      - fact: ogn_consultation_recorded
+        spec: spec-register-consultation
+        logics: [ogn_consultation]

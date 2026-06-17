@@ -1,0 +1,40 @@
+id: spec-register-consultation
+party: KNB
+domain: register-consultation
+type: Registration+Logic
+retention: 1y
+access: KNB, data subject (notary), AP on request
+
+scope:
+  - SEARCH_SUBMITTED
+  - SUGGESTIONS_RENDERED
+  - BRN_RECORD_VIEWED
+  - OGN_QUERY
+  - BRN_RECORD_RETURNED
+actions:
+  - web_consultation
+  - ogn_consultation
+facts:
+  - web_consultation_recorded
+  - ogn_consultation_recorded
+
+schemas:
+  - base.registration
+  - base.logic
+
+description: >-
+  Governs consultation of the Register Notariaat (the BRN) - the lawful set of
+  fields that must be open under WNA art. 5 so a notary's competence can be
+  verified. Two lawful access paths are in scope: the public search via
+  registernotariaat.nl (disclosure basis: openbaarheid, WNA art. 5) and the
+  chain-partner query via OGN (disclosure basis: uitvoering overeenkomst). The
+  basis for disclosing the register data is distinct from the basis for logging
+  who consulted it: each consultation is logged on its own legal basis
+  (gerechtvaardigd belang - the KNB zorgplicht and the data subject's
+  inzagerecht), per principle L6. Dataminimalisatie is encoded here, not in the
+  gates: a search must be doelmatig - following the Autoriteit Persoonsgegevens
+  ruling, no results are returned before the query is specific enough - and only
+  the lawful public field set is disclosed, so the internal lidnummer (a
+  persoonsgegeven) is never released. Each consultation is logged so the data
+  subject can later see who consulted their public record (controle achteraf,
+  WODC H15).
