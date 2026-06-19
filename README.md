@@ -1,11 +1,10 @@
 # Notarial Audit-Log Framework Demo
-This repository serves as an accompanying artifact for my master's thesis on
-audit logging in the notarial domain, completed as part of the [Business Informatics](https://www.uu.nl/en/masters/business-informatics)
-programme at Utrecht University in collaboration with the [KNB](https://www.knb.nl/) (Royal Dutch Association of Civil-law Notaries).
+This repository serves as an accompanying artifact for my master's thesis *A framework for audit logging and digital evidence: Study and design in the context of the civil notary domain*, completed as part of the [Business Informatics](https://www.uu.nl/en/masters/business-informatics)
+programme at Utrecht University in collaboration with the [KNB](https://www.knb.nl/) (Royal Dutch Association of Civil-law Notaries, *Koninklijke Notariële Beroepsorganisatie*).
 
 ## Links
 - [Demo](https://notarial-demo.eisedv.com/)
-- [Thesis](URL_TO_BE_ADDED) (link to be added)
+- [Thesis](URL_TO_BE_ADDED) (url to be added)
 
 ## Overview
 The demo contains an interactive webpage of a three-layer audit-logging framework for
@@ -73,3 +72,31 @@ This demonstration was developed with the assistance of AI tools and with limite
 focus on code quality, as its purpose is to serve as a simple interactive demo.
 The processes shown are exemplary processes drawn from the notarial domain, not
 exhaustive or authoritative descriptions of actual notarial workflows.
+
+## Citation
+
+```bibtex
+@Thesis{deVries2026AuditLogging,
+  author      = {Eise de Vries},
+  title       = {A framework for audit logging and digital evidence: Study and design in the context of the civil notary domain},
+  institution = {Utrecht University, The Netherlands},
+  year        = {2026},
+  url         = {URL_TO_BE_ADDED},
+}
+```
+
+<details>
+<summary>Citation with abstract</summary>
+
+```bibtex
+@Thesis{deVries2026AuditLogging,
+  author      = {Eise de Vries},
+  title       = {A framework for audit logging and digital evidence: Study and design in the context of the civil notary domain},
+  institution = {Utrecht University, The Netherlands},
+  year        = {2026},
+  url         = {URL_TO_BE_ADDED},
+  abstract    = {Citizens and businesses rely on notaries to give legal acts a trusted and provable form. As the notarial profession digitises, that proof increasingly rests on digital records rather than on paper, and the Royal Dutch Association of Civil-law Notaries (Koninklijke Notariële Beroepsorganisatie, KNB) is shifting from a regulator of professional conduct toward a trusted digital intermediary. This shift raises a linkage problem: low-level system logs, recorded by many systems for their own operational purposes, are hard to relate to the legally meaningful, institutionally grounded events that an audit log is expected to carry, especially when a single notarial act is spread across a notary office, a software supplier, KNB infrastructure, and external registries. This thesis asks how a system of digital traces can support digital evidence within the notarial context. Following a design science approach, it combines a narrative literature review with two phases of expert interviews and a validation round, and produces a first conceptual and normative framework as its primary artefact. The framework comprises a three-layer model with two transition gates, nine normative principles, a federated log architecture, and a runnable demonstration exercised on the transfer of a deed. The framework models the linkage between system events and institutional facts as a staged, conditional, and bidirectionally traceable progression from atomic event, to attributed action, to institutional fact. It suggests that cross-organisational reconstruction can be supported without shared infrastructure by recording foreign identifiers as crosslinks, and that the tension between evidentiary completeness and data minimisation can be managed through a bounded redaction discipline and per-layer documentation rather than removed. A boundary that held across the validation sessions runs through the framework: an audit log corroborates a notarial act but does not constitute it, so the notarial deed remains the primary legal truth.},
+}
+```
+
+</details>
