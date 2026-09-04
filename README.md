@@ -4,7 +4,7 @@ programme at Utrecht University in collaboration with the [KNB](https://www.knb.
 
 ## Links
 - [Demo](https://notarial-demo.eisedv.com/)
-- [Thesis](URL_TO_BE_ADDED) (url to be added)
+- [Thesis Repository](https://studenttheses.uu.nl/handle/20.500.12932/51679)
 
 ## Overview
 The demo contains an interactive webpage of a three-layer audit-logging framework for
