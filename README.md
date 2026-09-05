@@ -81,7 +81,7 @@ exhaustive or authoritative descriptions of actual notarial workflows.
   title       = {A framework for audit logging and digital evidence: Study and design in the context of the civil notary domain},
   institution = {Utrecht University, The Netherlands},
   year        = {2026},
-  url         = {URL_TO_BE_ADDED},
+  url         = {https://studenttheses.uu.nl/handle/20.500.12932/51679},
 }
 ```
 
@@ -94,7 +94,7 @@ exhaustive or authoritative descriptions of actual notarial workflows.
   title       = {A framework for audit logging and digital evidence: Study and design in the context of the civil notary domain},
   institution = {Utrecht University, The Netherlands},
   year        = {2026},
-  url         = {URL_TO_BE_ADDED},
+  url         = {https://studenttheses.uu.nl/handle/20.500.12932/51679},
   abstract    = {Citizens and businesses rely on notaries to give legal acts a trusted and provable form. As the notarial profession digitises, that proof increasingly rests on digital records rather than on paper, and the Royal Dutch Association of Civil-law Notaries (Koninklijke Notariële Beroepsorganisatie, KNB) is shifting from a regulator of professional conduct toward a trusted digital intermediary. This shift raises a linkage problem: low-level system logs, recorded by many systems for their own operational purposes, are hard to relate to the legally meaningful, institutionally grounded events that an audit log is expected to carry, especially when a single notarial act is spread across a notary office, a software supplier, KNB infrastructure, and external registries. This thesis asks how a system of digital traces can support digital evidence within the notarial context. Following a design science approach, it combines a narrative literature review with two phases of expert interviews and a validation round, and produces a first conceptual and normative framework as its primary artefact. The framework comprises a three-layer model with two transition gates, nine normative principles, a federated log architecture, and a runnable demonstration exercised on the transfer of a deed. The framework models the linkage between system events and institutional facts as a staged, conditional, and bidirectionally traceable progression from atomic event, to attributed action, to institutional fact. It suggests that cross-organisational reconstruction can be supported without shared infrastructure by recording foreign identifiers as crosslinks, and that the tension between evidentiary completeness and data minimisation can be managed through a bounded redaction discipline and per-layer documentation rather than removed. A boundary that held across the validation sessions runs through the framework: an audit log corroborates a notarial act but does not constitute it, so the notarial deed remains the primary legal truth.},
 }
 ```
