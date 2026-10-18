@@ -5,6 +5,7 @@ programme at Utrecht University in collaboration with the [KNB](https://www.knb.
 ## Links
 - [Demo](https://notarial-demo.eisedv.com/)
 - [Thesis Repository](https://studenttheses.uu.nl/handle/20.500.12932/51679)
+- Conference publication: [TO BE ADDED]
 
 ## Overview
 The demo contains an interactive webpage of a three-layer audit-logging framework for
@@ -74,6 +75,10 @@ The processes shown are exemplary processes drawn from the notarial domain, not
 exhaustive or authoritative descriptions of actual notarial workflows.
 
 ## Citation
+### Conference publication
+[TO BE ADDED]
+
+### University Thesis
 
 ```bibtex
 @Thesis{deVries2026AuditLogging,
